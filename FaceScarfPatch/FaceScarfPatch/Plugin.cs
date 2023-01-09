@@ -31,8 +31,8 @@ namespace FaceScarfPatch
                     GameObject value;
                     foreach (GameObject gameObject in array)
                     {
-                        // If this specific cosmetic is presumed to be the Face Scarf and its parent is presumed to have the name "Old Cosmetics Head" then disable the cosmetic's renderer component
-                        if (gameObject.name.Contains("FACE S") && gameObject.transform.parent.name.ToUpper().Contains("S HEAD")) gameObject.GetComponent<Renderer>().enabled = false;
+                        // If this specific cosmetic is presumed to be the Face Scarf and its parent is presumed to have the name "Old Cosmetics Head" then rename the object to be overridden.
+                        if (gameObject.name.Contains("FACE S") && gameObject.transform.parent.name.ToUpper().Contains("S HEAD")) gameObject.name = "OVERRIDDEN";
                         if (!dictionary.TryGetValue(gameObject.name, out value)) dictionary.Add(gameObject.name, gameObject);
                     }
 

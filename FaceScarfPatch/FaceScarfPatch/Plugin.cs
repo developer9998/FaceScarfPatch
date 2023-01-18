@@ -3,11 +3,13 @@ using HarmonyLib;
 using UnityEngine;
 using System.Linq;
 using System.Reflection;
+using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.XR;
 
 namespace FaceScarfPatch
 {
-    [BepInPlugin(Guid, "FaceScarfPatch", "1.0.0")]
+    [BepInPlugin(Guid, "FaceScarfPatch", "1.0.1")]
     public class Plugin : BaseUnityPlugin
     {
         public Harmony harmony;
@@ -15,17 +17,18 @@ namespace FaceScarfPatch
 
         public void Awake()
         {
-            harmony = new Harmony("com.dev9998.gorillatag.facescarfpatch");
+            harmony = new Harmony(Guid);
             harmony.PatchAll(Assembly.GetExecutingAssembly());
         }
 
         [HarmonyPatch(typeof(VRRig), "Awake")]
         internal class VRRigPatch
         {
-            internal static bool Prefix(VRRig __instance)
+            internal static bool Prefix(VRRig __instance, ref Vector3 ___lastPosition)
             {
                 if (__instance.isOfflineVRRig) // Ensure this statement only goes through if this is both our player and if it is used in an offline state
                 {
+                    __instance.StartCoroutine(SafeDelay(__instance));
                     Dictionary<string, GameObject> dictionary = new Dictionary<string, GameObject>();
                     GameObject[] array = __instance.cosmetics;
                     GameObject value;
@@ -47,11 +50,21 @@ namespace FaceScarfPatch
                     __instance.cosmetics = __instance.cosmetics.Concat(__instance.overrideCosmetics).ToArray();
                     __instance.cosmeticsObjectRegistry.Initialize(__instance.cosmetics);
                     // Since the "lastPosition" variable in VRRig is private I had to use a bit of Harmony logic using Traverse to set the value correctly
-                    Traverse.Create(__instance).Field("lastPosition").SetValue(__instance.transform.position);
+                    ___lastPosition = __instance.transform.position;
                     return false;
                 }
 
                 return true;
+            }
+
+            internal static IEnumerator SafeDelay(VRRig rig)
+            {
+                yield return 0;
+
+                // Disable the Steam manager if you're on a device like the Oculus Rift
+                if (InputDevices.GetDeviceAtXRNode(XRNode.Head).name == "Oculus Rift") FindObjectOfType<SteamManager>().enabled = false;
+                // Disable the Oculus manager if you're on a device like the Value Index
+                else FindObjectOfType<OVRManager>().enabled = false;
             }
         }
     }

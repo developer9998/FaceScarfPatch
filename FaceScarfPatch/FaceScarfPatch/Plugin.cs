@@ -11,7 +11,7 @@ using System;
 
 namespace FaceScarfPatch
 {
-    [BepInPlugin(Guid, "FaceScarfPatch", "1.0.1")]
+    [BepInPlugin(Guid, "FaceScarfPatch", "1.1.0")]
     public class Plugin : BaseUnityPlugin
     {
         public Harmony harmony;

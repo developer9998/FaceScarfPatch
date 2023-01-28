@@ -30,7 +30,6 @@ namespace FaceScarfPatch
             {
                 if (__instance.isOfflineVRRig) // Ensure this statement only goes through if this is both our player and if it is used in an offline state
                 {
-                    __instance.StartCoroutine(SafeDelay(__instance));
                     Dictionary<string, GameObject> dictionary = new Dictionary<string, GameObject>();
                     GameObject[] array = __instance.cosmetics;
                     GameObject value;
@@ -71,16 +70,6 @@ namespace FaceScarfPatch
                 }
 
                 return true;
-            }
-
-            internal static IEnumerator SafeDelay(VRRig rig)
-            {
-                yield return 0;
-
-                // Disable the Steam manager if you're on a device like the Oculus Rift
-                if (InputDevices.GetDeviceAtXRNode(XRNode.Head).name == "Oculus Rift") FindObjectOfType<SteamManager>().enabled = false;
-                // Disable the Oculus manager if you're on a device like the Value Index
-                else FindObjectOfType<OVRManager>().enabled = false;
             }
         }
     }

@@ -50,9 +50,16 @@ namespace FaceScarfPatch
                         // No idea why it doesn't check for if the cosmetic to override is apart of the player's body but it doesn't for whatever reason
                         if (dictionary.TryGetValue(gameObject2.name, out value) && value.name == gameObject2.name && !value.transform.parent.name.ToUpper().Contains("BODY"))
                         {
-                            value.name = "OVERRIDDEN";
-                            bool correctName = gameObject2.name.StartsWith("LFACC.");
-                            if (correctName && gameObject2.transform.Find("3rdmirror")) gameObject2.transform.GetChild(0).gameObject.SetActive(false);
+                            if (value.name == "CLOWN WIG")
+                            {
+                                gameObject2.name = "OVERRIDDEN";
+                            }
+                            else
+                            {
+                                value.name = "OVERRIDDEN";
+                                bool correctName = gameObject2.name.StartsWith("LFACC.");
+                                if (correctName && gameObject2.transform.Find("3rdmirror")) gameObject2.transform.GetChild(0).gameObject.SetActive(false);
+                            }
                         }
                     }
 

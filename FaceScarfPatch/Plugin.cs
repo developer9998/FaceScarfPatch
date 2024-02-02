@@ -8,20 +8,16 @@ using UnityEngine;
 // Comments provided for C# beginners
 namespace FaceScarfPatch
 {
-    [BepInPlugin(Guid, Name, Version)]
+    [BepInPlugin("dev.gorillascarfpatch", "GorillaScarfPatch", "1.0.0")]
     public class Plugin : BaseUnityPlugin
     {
-        private const string Guid = "com.dev9998.gorillatag.facescarfpatch";
-        private const string Name = "FaceScarfPatch";
-        private const string Version = "1.1.1";
+        public Plugin() => new Harmony("dev.gorillascarfpatch").PatchAll(typeof(Plugin).Assembly);
 
-        public void Awake()
-            => new Harmony(Guid).PatchAll(Assembly.GetExecutingAssembly());
-
-        [HarmonyPatch(typeof(VRRig), "Awake")]
-        internal class Main
+        [HarmonyPatch(typeof(VRRig), "Awake"), HarmonyWrapSafe]
+        public class Main
         {
-            internal static bool Prefix(VRRig __instance)
+            [HarmonyPrefix]
+            public static bool Prefix(VRRig __instance)
             {
                 // If this rig isn't for our local rig, just go on as usual
                 if (!__instance.isOfflineVRRig)
@@ -48,16 +44,9 @@ namespace FaceScarfPatch
                 array = __instance.overrideCosmetics;
                 foreach (GameObject gameObject2 in array)
                 {
-                    // Go through all the overrided cosmetics, pair them with all the cosmetics, and see if we can both match an overrided cosmetic with a
-                    // cosmetic (I assume the same object) and we can ensure the object isn't parented in an object that's name doesn't begin with "BODY"
+                    // Go through all the overrided cosmetics, pair them with all the cosmetics, and see if we can both match an overrided cosmetic with a cosmetic (I assume the same object) and we can ensure the object isn't parented in an object that's name doesn't begin with "BODY"
                     if (dictionary.TryGetValue(gameObject2.name, out value) && value.name == gameObject2.name && !value.transform.parent.name.ToUpper().Contains("BODY"))
                     {
-                        // If the non-overrided cosmetic has the name "Clown Wig", change the overrided cosmetic to be overridden. For K9
-                        if (value.name == "CLOWN WIG")
-                        {
-                            gameObject2.name = "OVERRIDDEN";
-                            continue;
-                        }
                         // Change the non-overrided cosmetic to be overridden
                         value.name = "OVERRIDDEN";
 
@@ -86,6 +75,14 @@ namespace FaceScarfPatch
                 AccessTools.Field(__instance.GetType(), "lastPosition").SetValue(__instance, __instance.transform.position);
                 AccessTools.Method(__instance.GetType(), "SharedStart").Invoke(__instance, null);
                 return false;
+            }
+
+            [HarmonyPostfix]
+            public void Postfix(VRRig __instance, FXSystemSettings ___sharedFXSettings)
+            {
+                __instance.GuidedRefInitialize();
+                __instance.fxSettings = Object.Instantiate<FXSystemSettings>(___sharedFXSettings);
+                __instance.fxSettings.forLocalRig = __instance.isOfflineVRRig;
             }
         }
     }

@@ -78,7 +78,7 @@ namespace FaceScarfPatch
             }
 
             [HarmonyPostfix]
-            public void Postfix(VRRig __instance, FXSystemSettings ___sharedFXSettings)
+            public static void Postfix(VRRig __instance, FXSystemSettings ___sharedFXSettings)
             {
                 __instance.GuidedRefInitialize();
                 __instance.fxSettings = Object.Instantiate<FXSystemSettings>(___sharedFXSettings);
